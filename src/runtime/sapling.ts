@@ -23,11 +23,19 @@ import type {
 import { runVersionCheck } from "./version.ts";
 
 const SAPLING_BIN = "sapling";
+const SAPLING_ENV_PASSTHROUGH = [
+	"OPENAI_API_KEY",
+	"OPENAI_BASE_URL",
+	"ANTHROPIC_API_KEY",
+	"ANTHROPIC_BASE_URL",
+	"DEEPSEEK_API_KEY",
+] as const;
 
 export const saplingRuntime: AgentRuntime = {
 	id: "sapling",
 	displayName: "Sapling",
 	supportsResume: true,
+	envPassthrough: SAPLING_ENV_PASSTHROUGH,
 
 	buildSpawnCommand(ctx: SpawnContext): SpawnCommand {
 		return {

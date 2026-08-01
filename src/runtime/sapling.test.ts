@@ -74,6 +74,18 @@ describe("saplingRuntime.buildSpawnCommand", () => {
 	});
 });
 
+describe("saplingRuntime.envPassthrough", () => {
+	test("forwards provider credentials and compatible base URLs into the sandbox", () => {
+		expect(saplingRuntime.envPassthrough).toEqual([
+			"OPENAI_API_KEY",
+			"OPENAI_BASE_URL",
+			"ANTHROPIC_API_KEY",
+			"ANTHROPIC_BASE_URL",
+			"DEEPSEEK_API_KEY",
+		]);
+	});
+});
+
 describe("saplingRuntime.buildResumeCommand", () => {
 	test("includes --resume <prior_run_id>", () => {
 		const cmd = saplingRuntime.buildResumeCommand?.({
