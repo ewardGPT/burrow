@@ -118,15 +118,25 @@ export interface CloneOptions {
 	originUrl: string;
 	targetPath: string;
 	branch?: string;
+	/** Remote/local ref to clone before creating a new local branch. */
+	baseBranch?: string;
 	depth?: number;
 }
 
 export async function cloneRepo(opts: CloneOptions): Promise<void> {
 	const args = ["clone"];
-	if (opts.branch) args.push("--branch", opts.branch);
+	const cloneBranch = opts.baseBranch ?? opts.branch;
+	if (cloneBranch !== undefined) args.push("--branch", cloneBranch);
 	if (opts.depth !== undefined) args.push("--depth", String(opts.depth));
 	args.push(opts.originUrl, opts.targetPath);
 	await runGitOrThrow(args);
+	if (
+		opts.baseBranch !== undefined &&
+		opts.branch !== undefined &&
+		opts.branch !== opts.baseBranch
+	) {
+		await runGitOrThrow(["checkout", "-b", opts.branch], { cwd: opts.targetPath });
+	}
 }
 
 export interface InitRepoOptions {
