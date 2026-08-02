@@ -110,7 +110,7 @@ describe("saplingRuntime.envPassthrough", () => {
 	});
 });
 
-	describe("saplingRuntime resume support", () => {
+describe("saplingRuntime resume support", () => {
 	test("does not advertise unsupported CLI resume semantics", () => {
 		expect(saplingRuntime.supportsResume).toBe(false);
 		expect(saplingRuntime.buildResumeCommand).toBeUndefined();
