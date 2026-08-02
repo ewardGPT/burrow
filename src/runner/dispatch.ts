@@ -126,6 +126,12 @@ export async function dispatchRun(input: DispatchRunInput): Promise<RunOutcome> 
 				errorMessage: `resume target run '${prior.id}' belongs to burrow ${prior.burrowId}, not ${burrow.id}`,
 			};
 		}
+		if (prior.agentId !== run.agentId) {
+			return {
+				state: "failed",
+				errorMessage: `resume target run '${prior.id}' belongs to agent ${prior.agentId}, not ${run.agentId}`,
+			};
+		}
 		if (!RUN_TERMINAL_STATES.has(prior.state)) {
 			return {
 				state: "failed",

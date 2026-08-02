@@ -584,6 +584,34 @@ describe("startRunDispatcher · resume routing (burrow-c386)", () => {
 		expect(client.runs.get(run.id).errorMessage).toContain(burrowB.id);
 	});
 
+	test("prior run from another agent → failed (cross-agent resume rejected)", async () => {
+		const burrow = seedActiveBurrow(client);
+		client.agents.register(fakeRuntime({ buildResumeCommand: () => ({ argv: ["r"] }) }));
+		client.agents.register({ ...fakeRuntime(), id: "other-agent" });
+		const priorFromOtherAgent = seedTerminalRun(burrow.id, "other-agent");
+
+		const calls: CollectedSpawn[] = [];
+		const dispatcher = startRunDispatcher(client, {
+			logger: silentLogger,
+			spawn: fakeSpawn({ calls }),
+		});
+		dispatcher.start();
+
+		const run = client.runs.create({
+			burrowId: burrow.id,
+			agentId: "fake",
+			prompt: "p",
+			resumeOfRunId: priorFromOtherAgent,
+		});
+		await waitFor(() => client.runs.get(run.id).state === "failed");
+		await dispatcher.stop();
+
+		expect(calls).toHaveLength(0);
+		const msg = client.runs.get(run.id).errorMessage ?? "";
+		expect(msg).toContain("other-agent");
+		expect(msg).toContain("not fake");
+	});
+
 	test("prior run not yet terminal → failed (non-terminal state rejected)", async () => {
 		const burrow = seedActiveBurrow(client);
 		client.agents.register(fakeRuntime({ buildResumeCommand: () => ({ argv: ["r"] }) }));
