@@ -615,6 +615,7 @@ describe("piRuntime.envPassthrough (burrow-6f3f)", () => {
 	test("each non-anthropic provider opts in only its matching key", () => {
 		const cases: Array<[string, readonly string[]]> = [
 			["openai", ["OPENAI_API_KEY", "OPENAI_BASE_URL"]],
+			["openrouter", ["OPENROUTER_API_KEY"]],
 			// pi's "google" provider reads GEMINI_API_KEY (per pi-ai
 			// env-api-keys.js); there is no "gemini" provider name.
 			["google", ["GEMINI_API_KEY"]],
@@ -656,6 +657,7 @@ describe("piRuntime.envPassthrough (burrow-6f3f)", () => {
 		// env var pi-ai's env-api-keys.js looks up for that provider.
 		expect(PI_PROVIDER_ENV_KEYS).toEqual({
 			openai: ["OPENAI_API_KEY", "OPENAI_BASE_URL"],
+			openrouter: ["OPENROUTER_API_KEY"],
 			google: ["GEMINI_API_KEY"],
 			groq: ["GROQ_API_KEY"],
 			mistral: ["MISTRAL_API_KEY"],

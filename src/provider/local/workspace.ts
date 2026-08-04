@@ -260,6 +260,7 @@ async function materializeViaClone(
 			originUrl: options.originUrl,
 			targetPath: options.workspacePath,
 			branch: options.branch,
+			baseBranch: options.baseBranch,
 		});
 	} catch (err) {
 		throw wrapMaterializationError(

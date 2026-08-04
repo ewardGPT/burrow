@@ -177,7 +177,8 @@ describe("materializeProjectWorkspace", () => {
 			const ws = join(outside, "ws");
 			const result = await materializeProjectWorkspace({
 				workspacePath: ws,
-				branch: "main",
+				branch: "burrow/bur_clone",
+				baseBranch: "main",
 				projectRoot: outside,
 				originUrl: repo,
 				hostEnv: isolatedEnv(home),
@@ -185,6 +186,9 @@ describe("materializeProjectWorkspace", () => {
 			expect(result.source.kind).toBe("clone");
 			expect(result.source.originUrl).toBe(repo);
 			expect(await Bun.file(join(ws, "README.md")).exists()).toBe(true);
+			expect((await runGit(["branch", "--show-current"], { cwd: ws })).stdout.trim()).toBe(
+				"burrow/bur_clone",
+			);
 		} finally {
 			rmSync(outside, { recursive: true, force: true });
 		}

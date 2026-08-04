@@ -16,35 +16,36 @@ import type {
 	AgentRuntime,
 	InstallCheckResult,
 	ParseContext,
-	ResumeContext,
 	RuntimeEvent,
 	SpawnContext,
 } from "./runtime.ts";
 import { runVersionCheck } from "./version.ts";
 
 const SAPLING_BIN = "sapling";
+const SAPLING_ENV_PASSTHROUGH = [
+	"OPENAI_API_KEY",
+	"OPENAI_BASE_URL",
+	"ANTHROPIC_API_KEY",
+	"ANTHROPIC_BASE_URL",
+	"DEEPSEEK_API_KEY",
+] as const;
 
 export const saplingRuntime: AgentRuntime = {
 	id: "sapling",
 	displayName: "Sapling",
-	supportsResume: true,
+	supportsResume: false,
+	envPassthrough: SAPLING_ENV_PASSTHROUGH,
 
 	buildSpawnCommand(ctx: SpawnContext): SpawnCommand {
+		const argv = [SAPLING_BIN, "run", "--json"];
+		const backend = nonEmpty(ctx.frontmatter?.provider);
+		if (backend !== undefined) argv.push("--backend", backend);
+		const model = nonEmpty(ctx.frontmatter?.model);
+		if (model !== undefined) argv.push("--model", model);
+		argv.push(composeSaplingPrompt(ctx.prompt, ctx.pendingMessages));
 		return {
-			argv: [
-				SAPLING_BIN,
-				"--json",
-				"--prompt",
-				composeSaplingPrompt(ctx.prompt, ctx.pendingMessages),
-			],
+			argv,
 		};
-	},
-
-	buildResumeCommand(ctx: ResumeContext): SpawnCommand {
-		const argv = [SAPLING_BIN, "--json"];
-		if (ctx.priorRun.id) argv.push("--resume", ctx.priorRun.id);
-		argv.push("--prompt", composeSaplingPrompt(ctx.prompt, ctx.pendingMessages));
-		return { argv };
 	},
 
 	parseEvents(line: string, _ctx: ParseContext): RuntimeEvent[] {
@@ -78,4 +79,9 @@ export function composeSaplingPrompt(prompt: string, messages: Message[]): strin
 
 function formatSteeringLine(message: Message): string {
 	return `[STEERING] (priority: ${message.priority}) ${message.body}`;
+}
+
+function nonEmpty(value: string | undefined): string | undefined {
+	const trimmed = value?.trim();
+	return trimmed === undefined || trimmed.length === 0 ? undefined : trimmed;
 }

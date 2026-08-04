@@ -149,7 +149,7 @@ export class RunsRepo {
 	claimById(runId: string, now: Date = new Date()): RunRow | null {
 		return this.db.transaction((tx) => {
 			const row = tx.select().from(runs).where(eq(runs.id, runId)).get();
-			if (!row || row.state !== "queued") return null;
+			if (row?.state !== "queued") return null;
 			tx.update(runs)
 				.set({ state: "running", startedAt: now })
 				.where(and(eq(runs.id, runId), eq(runs.state, "queued")))

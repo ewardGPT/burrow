@@ -65,29 +65,55 @@ describe("saplingRuntime.buildSpawnCommand", () => {
 			workspacePath: "/ws",
 		});
 		expect(cmd.argv[0]).toBe("sapling");
+		expect(cmd.argv[1]).toBe("run");
 		expect(cmd.argv).toContain("--json");
-		const promptIdx = cmd.argv.indexOf("--prompt");
-		const composed = cmd.argv[promptIdx + 1] ?? "";
+		const composed = cmd.argv.at(-1) ?? "";
 		expect(composed).toContain("[STEERING]");
 		expect(composed).toContain("priority: high");
 		expect(composed).toContain("ship the feature");
 	});
 });
 
-describe("saplingRuntime.buildResumeCommand", () => {
-	test("includes --resume <prior_run_id>", () => {
-		const cmd = saplingRuntime.buildResumeCommand?.({
+describe("saplingRuntime provider frontmatter", () => {
+	test("renders provider and model using Sapling's run flags", () => {
+		const cmd = saplingRuntime.buildSpawnCommand({
 			burrow: fakeBurrow(),
-			run: fakeRun({ id: "run_new" }),
-			priorRun: fakeRun({ id: "run_prev", state: "succeeded" }),
-			prompt: "continue",
+			run: fakeRun(),
+			prompt: "inspect",
 			pendingMessages: [],
 			envResolved: {},
 			workspacePath: "/ws",
+			frontmatter: { provider: "openai", model: "opencode-go/glm-5.2" },
 		});
-		const idx = cmd?.argv.indexOf("--resume") ?? -1;
-		expect(idx).toBeGreaterThan(-1);
-		expect(cmd?.argv[idx + 1]).toBe("run_prev");
+		expect(cmd.argv).toEqual([
+			"sapling",
+			"run",
+			"--json",
+			"--backend",
+			"openai",
+			"--model",
+			"opencode-go/glm-5.2",
+			"inspect",
+		]);
+	});
+});
+
+describe("saplingRuntime.envPassthrough", () => {
+	test("forwards provider credentials and compatible base URLs into the sandbox", () => {
+		expect(saplingRuntime.envPassthrough).toEqual([
+			"OPENAI_API_KEY",
+			"OPENAI_BASE_URL",
+			"ANTHROPIC_API_KEY",
+			"ANTHROPIC_BASE_URL",
+			"DEEPSEEK_API_KEY",
+		]);
+	});
+});
+
+describe("saplingRuntime resume support", () => {
+	test("does not advertise unsupported CLI resume semantics", () => {
+		expect(saplingRuntime.supportsResume).toBe(false);
+		expect(saplingRuntime.buildResumeCommand).toBeUndefined();
 	});
 });
 
