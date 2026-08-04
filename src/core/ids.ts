@@ -40,16 +40,20 @@ export function generateId(kind: IdKind): string {
 	return `${PREFIXES[kind]}_${randomSuffix()}`;
 }
 
+function isBase32Suffix(suffix: string): boolean {
+	for (const ch of suffix) {
+		if (!BASE32_ALPHABET.includes(ch)) return false;
+	}
+	return true;
+}
+
 export function isId(kind: IdKind, value: unknown): value is string {
 	if (typeof value !== "string") return false;
 	const prefix = `${PREFIXES[kind]}_`;
 	if (!value.startsWith(prefix)) return false;
 	const suffix = value.slice(prefix.length);
 	if (suffix.length !== SUFFIX_LEN) return false;
-	for (const ch of suffix) {
-		if (!BASE32_ALPHABET.includes(ch)) return false;
-	}
-	return true;
+	return isBase32Suffix(suffix);
 }
 
 /**
@@ -68,9 +72,7 @@ export function parseId(value: string): { kind: IdKind; suffix: string } | null 
 	if (!kind) return null;
 	const suffix = match[2];
 	if (!suffix) return null;
-	for (const ch of suffix) {
-		if (!BASE32_ALPHABET.includes(ch)) return null;
-	}
+	if (!isBase32Suffix(suffix)) return null;
 	return { kind, suffix };
 }
 
