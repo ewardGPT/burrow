@@ -1,0 +1,35 @@
+name: OpenCode Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: open-code-review-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Repository secrets are not available to fork PRs; only run for same-repo PRs.
+    if: ${{ !github.event.pull_request.head.repo.fork }}
+    steps:
+      # Pinned to commit SHA (immutable) instead of the mutable v1.8.8 tag.
+      - uses: alibaba/open-code-review@6dc3eb067071c01e7234ac6032a9f7d656a29f84
+        with:
+          # OpenAI-compatible endpoint (DeepSeek public API).
+          llm_url: https://api.deepseek.com
+          llm_auth_token: ${{ secrets.OCR_LLM_TOKEN }}
+          llm_model: deepseek-v4-flash
+          llm_use_anthropic: 'false'
+          # `thinking` is an Anthropic-only param; leave empty body for OpenAI-compatible.
+          llm_extra_body: '{}'
+          language: 'English'
+          upload_artifacts: 'true'
+          sticky_summary: 'true'
+          incremental: 'true'
