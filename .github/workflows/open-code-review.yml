@@ -1,0 +1,27 @@
+name: OpenCode Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: alibaba/open-code-review@v1.8.8
+        with:
+          # OpenAI-compatible endpoint (DeepSeek public API).
+          llm_url: https://api.deepseek.com
+          llm_auth_token: ${{ secrets.OCR_LLM_TOKEN }}
+          llm_model: deepseek-v4-flash
+          llm_use_anthropic: 'false'
+          # `thinking` is an Anthropic-only param; leave empty body for OpenAI-compatible.
+          llm_extra_body: '{}'
+          language: 'English'
+          upload_artifacts: 'true'
+          sticky_summary: 'true'
+          incremental: 'true'

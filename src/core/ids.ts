@@ -44,6 +44,28 @@ export function isId(kind: IdKind, value: unknown): value is string {
 	return true;
 }
 
+/**
+ * Split an ID back into its kind and suffix.
+ *
+ * Returns `null` for strings that are not a well-formed ID (wrong length,
+ * characters outside the base32 alphabet, or an unknown prefix). Unlike
+ * {@link isId} this does not require the caller to know the kind up front.
+ */
+export function parseId(value: string): { kind: IdKind; suffix: string } | null {
+	const match = value.match(/^(bur|run|msg|evt)_(.{12})$/);
+	if (!match) return null;
+	const kind = Object.entries(PREFIXES).find(([, prefix]) => prefix === match[1])?.[0] as
+		| IdKind
+		| undefined;
+	if (!kind) return null;
+	const suffix = match[2];
+	if (!suffix) return null;
+	for (const ch of suffix) {
+		if (!BASE32_ALPHABET.includes(ch)) return null;
+	}
+	return { kind, suffix };
+}
+
 function randomSuffix(): string {
 	const bytes = new Uint8Array(SUFFIX_LEN);
 	crypto.getRandomValues(bytes);
