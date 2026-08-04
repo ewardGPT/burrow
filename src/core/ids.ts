@@ -26,6 +26,8 @@ const PREFIXES = {
 	event: "evt",
 } as const;
 
+const ID_PATTERN = new RegExp(`^(${Object.values(PREFIXES).join("|")})_(.{${SUFFIX_LEN}})$`);
+
 export type IdKind = keyof typeof PREFIXES;
 
 export function generateId(kind: IdKind): string {
@@ -52,7 +54,7 @@ export function isId(kind: IdKind, value: unknown): value is string {
  * {@link isId} this does not require the caller to know the kind up front.
  */
 export function parseId(value: string): { kind: IdKind; suffix: string } | null {
-	const match = value.match(/^(bur|run|msg|evt)_(.{12})$/);
+	const match = value.match(ID_PATTERN);
 	if (!match) return null;
 	const kind = Object.entries(PREFIXES).find(([, prefix]) => prefix === match[1])?.[0] as
 		| IdKind
