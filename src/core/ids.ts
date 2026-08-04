@@ -26,7 +26,13 @@ const PREFIXES = {
 	event: "evt",
 } as const;
 
-const ID_PATTERN = new RegExp(`^(${Object.values(PREFIXES).join("|")})_(.{${SUFFIX_LEN}})$`);
+function escapeRegExp(value: string): string {
+	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+const ID_PATTERN = new RegExp(
+	`^(${Object.values(PREFIXES).map(escapeRegExp).join("|")})_(.{${SUFFIX_LEN}})$`,
+);
 
 export type IdKind = keyof typeof PREFIXES;
 
