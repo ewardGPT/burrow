@@ -1,6 +1,6 @@
 # .warren/config.yaml — per-project warren defaults.
 
-defaultRole: pi
+defaultRole: sapling
 defaultBranch: main
 defaultProvider: anthropic
 defaultModel: claude-opus-4-7
