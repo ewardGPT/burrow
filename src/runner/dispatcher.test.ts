@@ -157,7 +157,6 @@ describe("startRunDispatcher", () => {
 		expect(finalized.startedAt).not.toBeNull();
 		expect(finalized.completedAt).not.toBeNull();
 	});
-
 	test("startup recovery sweeps stale running rows from a prior process", async () => {
 		const burrow = seedActiveBurrow(client);
 		client.agents.register(fakeRuntime());
@@ -179,7 +178,6 @@ describe("startRunDispatcher", () => {
 		expect(recovered.failedRunIds).toEqual([stuck.id]);
 		expect(client.repos.runs.require(stuck.id).state).toBe("failed");
 	});
-
 	test("queued rows already in the DB at start() are picked up", async () => {
 		const burrow = seedActiveBurrow(client);
 		client.agents.register(fakeRuntime());
