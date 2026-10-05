@@ -55,6 +55,11 @@ export const CLAUDE_CODE_ENV_PASSTHROUGH: readonly string[] = [
 	"ANTHROPIC_API_KEY",
 	"ANTHROPIC_AUTH_TOKEN",
 	"ANTHROPIC_BASE_URL",
+	// Model selection for non-Anthropic endpoints (burrow-e9e7 family): without
+	// this the sandboxed `claude` asks for its built-in default model and any
+	// OpenAI-compatible gateway upstream rejects it (observed as Bifrost's
+	// "could not auto resolve a provider for the request").
+	"ANTHROPIC_MODEL",
 	"CLAUDE_CODE_OAUTH_TOKEN",
 ];
 

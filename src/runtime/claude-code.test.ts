@@ -190,6 +190,7 @@ describe("claudeCodeRuntime.envPassthrough", () => {
 			"ANTHROPIC_API_KEY",
 			"ANTHROPIC_AUTH_TOKEN",
 			"ANTHROPIC_BASE_URL",
+			"ANTHROPIC_MODEL",
 			"CLAUDE_CODE_OAUTH_TOKEN",
 		]);
 	});
