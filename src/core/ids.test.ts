@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { generateId, isId } from "./ids.ts";
+import { generateId, isId, parseId } from "./ids.ts";
 
 describe("generateId", () => {
 	test("emits the right prefix for each kind", () => {
@@ -13,6 +13,24 @@ describe("generateId", () => {
 		const ids = new Set<string>();
 		for (let i = 0; i < 10_000; i++) ids.add(generateId("burrow"));
 		expect(ids.size).toBe(10_000);
+	});
+});
+
+describe("parseId", () => {
+	test("splits a generated id back into kind and suffix", () => {
+		for (const kind of ["burrow", "run", "message", "event"] as const) {
+			const parsed = parseId(generateId(kind));
+			expect(parsed?.kind).toBe(kind);
+			expect(parsed?.suffix).toMatch(/^[0-9a-z]{12}$/);
+		}
+	});
+
+	test("rejects malformed ids", () => {
+		expect(parseId("bur_short")).toBeNull();
+		expect(parseId("foo_0123456789ab")).toBeNull();
+		expect(parseId("bur_0123456789ab_extra")).toBeNull();
+		expect(parseId("BUR_0123456789ab")).toBeNull();
+		expect(parseId("bur_!!!!!!!!!!!!")).toBeNull();
 	});
 });
 

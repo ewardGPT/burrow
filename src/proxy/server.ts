@@ -296,6 +296,17 @@ function forwardHttp(
 		},
 	);
 	upstream.on("error", (err) => {
+		// Mirror the CONNECT branch's observability: without this the 502 body is
+		// the only trace and HTTP clients routinely drop it (seen with
+		// claude-code against an IP-literal upstream, where the cause was
+		// invisible in `docker logs`).
+		log?.warn?.({
+			event: "burrow.proxy.upstream_error",
+			transport: "http",
+			host: target.hostname,
+			port: target.port,
+			message: err instanceof Error ? err.message : String(err),
+		});
 		if (!res.headersSent) {
 			res.writeHead(502, { "content-type": "text/plain" });
 		}

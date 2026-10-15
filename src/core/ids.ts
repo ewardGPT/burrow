@@ -26,10 +26,25 @@ const PREFIXES = {
 	event: "evt",
 } as const;
 
+function escapeRegExp(value: string): string {
+	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+const ID_PATTERN = new RegExp(
+	`^(${Object.values(PREFIXES).map(escapeRegExp).join("|")})_(.{${SUFFIX_LEN}})$`,
+);
+
 export type IdKind = keyof typeof PREFIXES;
 
 export function generateId(kind: IdKind): string {
 	return `${PREFIXES[kind]}_${randomSuffix()}`;
+}
+
+function isBase32Suffix(suffix: string): boolean {
+	for (const ch of suffix) {
+		if (!BASE32_ALPHABET.includes(ch)) return false;
+	}
+	return true;
 }
 
 export function isId(kind: IdKind, value: unknown): value is string {
@@ -38,10 +53,27 @@ export function isId(kind: IdKind, value: unknown): value is string {
 	if (!value.startsWith(prefix)) return false;
 	const suffix = value.slice(prefix.length);
 	if (suffix.length !== SUFFIX_LEN) return false;
-	for (const ch of suffix) {
-		if (!BASE32_ALPHABET.includes(ch)) return false;
-	}
-	return true;
+	return isBase32Suffix(suffix);
+}
+
+/**
+ * Split an ID back into its kind and suffix.
+ *
+ * Returns `null` for strings that are not a well-formed ID (wrong length,
+ * characters outside the base32 alphabet, or an unknown prefix). Unlike
+ * {@link isId} this does not require the caller to know the kind up front.
+ */
+export function parseId(value: string): { kind: IdKind; suffix: string } | null {
+	const match = value.match(ID_PATTERN);
+	if (!match) return null;
+	const kind = Object.entries(PREFIXES).find(([, prefix]) => prefix === match[1])?.[0] as
+		| IdKind
+		| undefined;
+	if (!kind) return null;
+	const suffix = match[2];
+	if (!suffix) return null;
+	if (!isBase32Suffix(suffix)) return null;
+	return { kind, suffix };
 }
 
 function randomSuffix(): string {

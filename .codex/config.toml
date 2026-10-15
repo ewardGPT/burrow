@@ -1,0 +1,20 @@
+# mulch:start — managed by `ml setup codex`
+[features]
+codex_hooks = true
+
+[[hooks.SessionStart]]
+
+[[hooks.SessionStart.hooks]]
+type = "command"
+command = "ml prime"
+statusMessage = "Loading mulch expertise"
+# mulch:end
+
+# memory-sync:start — managed by operator (seeds+mulch session sync)
+[[hooks.SessionEnd]]
+
+[[hooks.SessionEnd.hooks]]
+type = "command"
+command = "/home/ubuntu/bin/memory-sync.sh"
+statusMessage = "Syncing seeds + mulch"
+# memory-sync:end

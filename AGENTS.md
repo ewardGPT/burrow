@@ -184,3 +184,27 @@ failures will break CI; do not push hoping CI will pass.
 - `SECURITY.md` — security policy
 - `scripts/` — ratchet scripts and budgets
 - `.github/workflows/` — CI + publish + auto-merge workflows
+
+<!-- mulch:start -->
+## Mulch Expertise
+
+At the start of every session, run `ml prime` to load project expertise.
+
+This injects project-specific conventions, patterns, decisions, and other learnings into your context.
+Use `ml prime --files src/foo.ts` to load only records relevant to specific files.
+
+Evidence auto-populates from git (current commit + changed files). Link trackers explicitly with `--evidence-seeds <id>` / `--evidence-gh <id>` / `--evidence-linear <id>` / `--evidence-bead <id>`, or `--relates-to <mx-id>`.
+
+### Before You Finish
+
+If you discovered conventions, patterns, decisions, or failures worth preserving during
+this session, record them before closing:
+
+```bash
+ml learn                                                                    # see what files changed
+ml record <domain> --type <convention|pattern|failure|decision|reference|guide> --description "..."
+ml sync                                                                     # validate, stage, commit
+```
+
+Skip if no insight surfaced. Unrecorded learnings are lost; ritual filler records are also noise.
+<!-- mulch:end -->
